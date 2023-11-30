@@ -1,21 +1,47 @@
 // [Template no Kotlin Playground](https://pl.kotl.in/WcteahpyN)
 
-enum class Nivel { BASICO, INTERMEDIARIO, DIFICIL }
+class UsuarioJaMatriculadoException(message: String) : Throwable(message)
 
-class Usuario
+enum class Nivel { BASICO, INTERMEDIARIO, AVANCADO }
 
-data class ConteudoEducacional(var nome: String, val duracao: Int = 60)
+data class Usuario(val id: Int, val nome: String) {
+     override fun equals(other: Any?) = other is Usuario && other.id == this.id
+}
 
-data class Formacao(val nome: String, var conteudos: List<ConteudoEducacional>) {
+data class ConteudoEducacional(val nome: String, val duracao: Int = 1)
+
+data class Formacao(val nome: String, val nivel: Nivel, val conteudos: List<ConteudoEducacional>) {
 
     val inscritos = mutableListOf<Usuario>()
     
     fun matricular(usuario: Usuario) {
-        TODO("Utilize o parâmetro $usuario para simular uma matrícula (usar a lista de $inscritos).")
+        
+        if (inscritos.find { it.equals(usuario) } != null)
+        	throw UsuarioJaMatriculadoException("Usuário ${usuario.nome} já matriculado")
+        
+        inscritos.add(usuario)
     }
 }
 
 fun main() {
-    TODO("Analise as classes modeladas para este domínio de aplicação e pense em formas de evoluí-las.")
-    TODO("Simule alguns cenários de teste. Para isso, crie alguns objetos usando as classes em questão.")
+    
+    val conteudos = listOf(
+        ConteudoEducacional("Trabalhando em Equipes Ágeis", 2),
+        ConteudoEducacional("Versionamento de Código com Git e GitHub", 4),
+    )
+    
+    val formacao = Formacao(nome = "Desenvolvimento Backend com Kotlin", nivel = Nivel.BASICO, conteudos = conteudos)
+    
+    val usuarios: List<Usuario> = listOf(Usuario(id = 1, nome = "Ian"), Usuario(id = 2, nome = "João"), Usuario(id = 1, nome = "Pedro"))
+    
+    for (usuario in usuarios) {
+        try {
+            formacao.matricular(usuario)
+            println("Usuário ${usuario.nome} matriculado na formação ${formacao.nome}")
+        } catch (e: UsuarioJaMatriculadoException) {
+            println(e.message)
+        }    
+    }
+    
+    println(formacao)
 }
